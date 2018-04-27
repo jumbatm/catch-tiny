@@ -17,6 +17,8 @@
 
 #define TEST_CASE(x) CATCH_TINY_GENERATE( PP_CONCAT(f, __LINE__), PP_CONCAT(t, __LINE__), x)
 
+#define SECTION(...) if (true)
+
 struct TestCase
 {
     static std::unordered_map<std::string, TestCase> allTestCases;
