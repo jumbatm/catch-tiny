@@ -62,8 +62,8 @@ int main()
         {
             std::cout << "In test case: " << i.second.name << "\n" <<
                             "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << "\n";
+            break;
         }
-        break;
     }
 
     return 0;
