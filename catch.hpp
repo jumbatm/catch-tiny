@@ -61,7 +61,7 @@ int main()
         catch (Assertion& a)
         {
             std::cout << "In test case: " << i.second.name << "\n" <<
-                            "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << std::endl;
+                            "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << "\n";
         }
         break;
     }
