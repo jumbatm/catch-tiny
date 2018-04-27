@@ -50,7 +50,6 @@ TestCase::TestCase(const char *name, void (*function)()) : name(name), function(
     allTestCases.insert({std::string(name), *this});
 }
 
-
 int main()
 {
     for (auto& i : TestCase::allTestCases)
@@ -61,7 +60,7 @@ int main()
         }
         catch (Assertion& a)
         {
-            std::cout << "In test case " << i.second.name << "\n" <<
+            std::cout << "In test case: " << i.second.name << "\n" <<
                             "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << std::endl;
         }
         break;
