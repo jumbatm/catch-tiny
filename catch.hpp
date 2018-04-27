@@ -1,6 +1,6 @@
 #include <iostream>
 #include <unordered_map>
-#include <vector>
+#include <string>
 
 #define PP_CONCAT_(x, y) x ## y
 #define PP_CONCAT(x, y) PP_CONCAT_(x, y) // Indirection, as PP won't recursively stringise.
@@ -16,13 +16,13 @@
 
 struct TestCase
 {
-    static std::vector<TestCase> allTestCases;
+    static std::unordered_map<std::string, TestCase> allTestCases;
     const char *name;
     void (*function)();
 
     TestCase(const char *name, void (*function)()) : name(name), function(function)
     {
-        allTestCases.push_back(*this);
+        allTestCases.insert({std::string(name), *this});
     }
 };
 
@@ -41,20 +41,19 @@ struct Assertion
     }
 };
 
-std::vector<TestCase> TestCase::allTestCases;
+std::unordered_map<std::string, TestCase> TestCase::allTestCases;
 
 int main()
 {
     for (auto& i : TestCase::allTestCases)
     {
-        std::cout << "Executing: " << i.name << std::endl;
         try
         {
-            i.function();
+            i.second.function();
         }
         catch (Assertion& a)
         {
-            std::cout << "In test case " << i.name << "\n" <<
+            std::cout << "In test case " << i.second.name << "\n" <<
                             "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << std::endl;
         }
         break;
