@@ -13,7 +13,7 @@
     TestCase TEST_NAME(CASE_NAME, FUNC_NAME); \
     static void FUNC_NAME()
 
-#define REQUIRE(EXPRESSION) Assertion::Assert(#EXPRESSION, __FILE__, __LINE__, EXPRESSION)
+#define REQUIRE(...) Assertion::Assert(#__VA_ARGS__, __FILE__, __LINE__, __VA_ARGS__)
 
 #define TEST_CASE(x) CATCH_TINY_GENERATE( PP_CONCAT(f, __LINE__), PP_CONCAT(t, __LINE__), x)
 
