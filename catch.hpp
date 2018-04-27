@@ -1,3 +1,6 @@
+#ifndef __CATCH_TINY_INCLUDED_H__
+#define __CATCH_TINY_INCLUDED_H__
+
 #include <iostream>
 #include <unordered_map>
 #include <string>
@@ -66,5 +69,5 @@ int main()
 
     return 0;
 }
-
+#endif
 #endif
