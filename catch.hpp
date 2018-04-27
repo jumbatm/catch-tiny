@@ -20,10 +20,7 @@ struct TestCase
     const char *name;
     void (*function)();
 
-    TestCase(const char *name, void (*function)()) : name(name), function(function)
-    {
-        allTestCases.insert({std::string(name), *this});
-    }
+    TestCase(const char *name, void (*function)());
 };
 
 struct Assertion
@@ -32,16 +29,24 @@ struct Assertion
     const char *expression;
     const char *file;
 
-    static void Assert(const char *exp, const char *fileName, size_t lineNumber, bool assertion)
-    {
-        if (!assertion)
-        {
-            throw Assertion{lineNumber, exp, fileName};
-        }
-    }
+    static void Assert(const char *exp, const char *fileName, size_t lineNumber, bool assertion);
 };
 
+#ifdef CATCH_CONFIG_MAIN
+
 std::unordered_map<std::string, TestCase> TestCase::allTestCases;
+void Assertion::Assert(const char *exp, const char *fileName, size_t lineNumber, bool assertion)
+{
+    if (!assertion)
+    {
+        throw Assertion{lineNumber, exp, fileName};
+    }
+}
+TestCase::TestCase(const char *name, void (*function)()) : name(name), function(function)
+{
+    allTestCases.insert({std::string(name), *this});
+}
+
 
 int main()
 {
@@ -61,3 +66,5 @@ int main()
 
     return 0;
 }
+
+#endif
