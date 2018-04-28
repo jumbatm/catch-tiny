@@ -46,7 +46,7 @@ struct Assertion
     static void Assert(const char *exp, const char *fileName, size_t lineNumber, bool assertion);
 };
 
-extern size_t CATCH_INTERNAL(x);
+extern size_t CATCH_INTERNAL(idx);
 
 #ifdef CATCH_CONFIG_MAIN
 
