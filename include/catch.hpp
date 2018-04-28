@@ -19,12 +19,11 @@
 #define CATCH_TINY_GENERATE(FUNC_NAME, TEST_NAME, CASE_NAME) \
     static void FUNC_NAME(TestCase*); \
     TestCase TEST_NAME(CASE_NAME, FUNC_NAME); \
-    CATCH_EXEC(CATCH_INTERNAL(last) = &TEST_NAME); \
     static void FUNC_NAME(TestCase *this_)
 
 // Public interface.
 #define TEST_CASE(x) CATCH_TINY_GENERATE( PP_CONCAT(f, __LINE__), PP_CONCAT(t, __LINE__), x)
-#define SECTION(...) if (this_->sections++, CATCH_INTERNAL(idx) == __COUNTER__)
+#define SECTION(...) if (((CATCH_INTERNAL(idx) == 0) ? (this_->sections++) : (0)), CATCH_INTERNAL(idx) == __COUNTER__)
 #define REQUIRE(...) Assertion::Assert(#__VA_ARGS__, __FILE__, __LINE__, __VA_ARGS__)
 
 struct TestCase
@@ -36,11 +35,6 @@ struct TestCase
 
     TestCase(const char *name, void (*function)(TestCase*));
 };
-
-namespace
-{
-    TestCase *CATCH_INTERNAL(last) = nullptr;
-}
 
 struct Assertion
 {
@@ -82,8 +76,7 @@ int main()
             do
             {
                 testCase.function(&testCase);
-                std::cout << testCase.sections << std::endl;
-            } while (testCase.sections--);
+            } while (--testCase.sections);
         }
         catch (Assertion& a)
         {
