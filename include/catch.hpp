@@ -28,6 +28,7 @@ struct TestCase
 
 struct Assertion
 {
+    static size_t count;
     size_t line;
     const char *expression;
     const char *file;
@@ -38,8 +39,12 @@ struct Assertion
 #ifdef CATCH_CONFIG_MAIN
 
 std::unordered_map<std::string, TestCase> TestCase::allTestCases;
+size_t Assertion::count = 0;
+
 void Assertion::Assert(const char *exp, const char *fileName, size_t lineNumber, bool assertion)
 {
+    ++Assertion::count;
+
     if (!assertion)
     {
         throw Assertion{lineNumber, exp, fileName};
@@ -52,11 +57,14 @@ TestCase::TestCase(const char *name, void (*function)()) : name(name), function(
 
 int main()
 {
+    size_t testCasesPassed = 0, assertionsPassed = 0;
+
     for (auto& i : TestCase::allTestCases)
     {
         try
         {
             i.second.function();
+            ++assertionsPassed;
         }
         catch (Assertion& a)
         {
@@ -64,7 +72,11 @@ int main()
                             "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << "\n";
             break;
         }
+        ++testCasesPassed;
     }
+
+    printf("%zd of %zd assertions passed from %zd of %zd test cases.", assertionsPassed, Assertion::count,
+            testCasesPassed, TestCase::allTestCases.size());
 
     return 0;
 }
