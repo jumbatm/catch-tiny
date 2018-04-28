@@ -32,7 +32,7 @@ struct TestCase
     static std::unordered_map<std::string, TestCase> allTestCases;
     const char *name;
     void (*function)(TestCase*);
-    size_t sections = 1;
+    size_t sections = 0;
 
     TestCase(const char *name, void (*function)(TestCase*));
 };
@@ -78,7 +78,7 @@ int main()
             {
                 testCase.function(&testCase);
                 ++CATCH_INTERNAL(idx);
-            } while (--testCase.sections);
+            } while (testCase.sections--);
         }
         catch (Assertion& a)
         {
