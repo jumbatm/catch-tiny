@@ -19,3 +19,11 @@ TEST_CASE("Sections execute preceding lines of code.")
         REQUIRE(num == 3);
     }
 }
+
+TEST_CASE("Multiple test cases with sections in single file.")
+{
+    SECTION("This should fail.")
+    {
+        REQUIRE(false);
+    }
+}
