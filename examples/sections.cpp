@@ -1,16 +1,9 @@
 #include "catch.hpp"
-
-//#define MSG(x) std::cout << x << "\n";
-
-#define MSG(x)
-
 #include <iostream>
 
 TEST_CASE("Sections execute preceding lines of code.")
 {
-    MSG("Entering test case");
-    size_t idx = CATCH_INTERNAL(idx);
-    size_t num = 0;
+    int num = 0;
 
     SECTION("Increment once")
     {
