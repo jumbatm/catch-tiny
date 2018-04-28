@@ -23,7 +23,8 @@
 
 // Public interface.
 #define TEST_CASE(x) CATCH_TINY_GENERATE( PP_CONCAT(f, __LINE__), PP_CONCAT(t, __LINE__), x)
-#define SECTION(...) if (((CATCH_INTERNAL(idx) == 0) ? (this_->sections++) : (0)), CATCH_INTERNAL(idx) == __COUNTER__)
+#define SECTION(...) if (CATCH_INTERNAL(idx) == 0) this_->sections++; \
+                                              if (CATCH_INTERNAL(idx) == __COUNTER__)
 #define REQUIRE(...) Assertion::Assert(#__VA_ARGS__, __FILE__, __LINE__, __VA_ARGS__)
 
 struct TestCase
@@ -76,6 +77,7 @@ int main()
             do
             {
                 testCase.function(&testCase);
+                ++CATCH_INTERNAL(idx);
             } while (--testCase.sections);
         }
         catch (Assertion& a)
