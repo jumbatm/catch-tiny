@@ -77,7 +77,14 @@ int main()
             do
             {
                 testCase.function(&testCase);
+
+                if (CATCH_INTERNAL(idx) == 0 && testCase.sections > 0) 
+                {
+                    --testCase.sections;
+                }
+
                 ++CATCH_INTERNAL(idx);
+
             } while (testCase.sections--);
         }
         catch (Assertion& a)
