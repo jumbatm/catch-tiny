@@ -2,6 +2,8 @@
 #define __CATCH_TINY_INCLUDED_H__
 
 #include <iostream>
+#include <list>
+#include <unordered_set>
 #include <unordered_map>
 #include <string>
 
@@ -18,7 +20,7 @@
 // Create a new global test case object. Called by TEST_CASE.
 #define CATCH_TINY_GENERATE(FUNC_NAME, TEST_NAME, CASE_NAME) \
     static void FUNC_NAME(TestCase*); \
-    TestCase TEST_NAME(CASE_NAME, FUNC_NAME); \
+    TestCase TEST_NAME(__FILE__, CASE_NAME, FUNC_NAME); \
     static void FUNC_NAME(TestCase *this_)
 
 // Public interface.
@@ -29,17 +31,19 @@
 
 struct TestCase
 {
-    static std::unordered_map<std::string, TestCase> allTestCases;
+    static std::unordered_map<std::string, std::list<TestCase> > allTestCases;
+    static std::unordered_set<std::string> testCaseNames;
+    static size_t count;
+
     const char *name;
     void (*function)(TestCase*);
     size_t sections = 0;
 
-    TestCase(const char *name, void (*function)(TestCase*));
+    TestCase(const char *filename, const char *name, void (*function)(TestCase*));
 };
 
 struct Assertion
 {
-    static size_t count;
     size_t line;
     const char *expression;
     const char *file;
@@ -48,13 +52,16 @@ struct Assertion
 };
 
 extern size_t CATCH_INTERNAL(idx);
+extern bool CATCH_INTERNAL(duplicateFlag);
 
 #ifdef CATCH_CONFIG_MAIN
 
 size_t CATCH_INTERNAL(idx) = 0;
+bool CATCH_INTERNAL(duplicateFlag) = false;
 
-std::unordered_map<std::string, TestCase> TestCase::allTestCases;
-size_t Assertion::count = 0;
+std::unordered_set<std::string> TestCase::testCaseNames;
+std::unordered_map<std::string, std::list<TestCase> > TestCase::allTestCases;
+size_t TestCase::count = 0;
 
 void Assertion::Assert(const char *exp, const char *fileName, size_t lineNumber, bool assertion)
 {
@@ -63,46 +70,58 @@ void Assertion::Assert(const char *exp, const char *fileName, size_t lineNumber,
         throw Assertion{lineNumber, exp, fileName};
     }
 }
-TestCase::TestCase(const char *name, void (*function)(TestCase*)) : name(name), function(function)
+TestCase::TestCase(const char *filename, const char *name, void (*function)(TestCase*)) : name(name), function(function)
 {
-    allTestCases.insert({std::string(name), *this});
+    TestCase::count++;
+    allTestCases[std::string(filename)].push_back(*this);
+    if (!testCaseNames.insert(std::string(name)).second)
+    {
+        CATCH_INTERNAL(duplicateFlag) = true;
+    }
 }
 
 int main()
 {
+    if (CATCH_INTERNAL(duplicateFlag))
+    {
+        printf("Duplicate test case flags.\n");
+        return -1;
+    }
     size_t testCasesPassed = 0;
 
-    for (auto& pair : TestCase::allTestCases)
+    for (auto& filenameToTestCaseList : TestCase::allTestCases)
     {    
         CATCH_INTERNAL(idx) = 0;
 
-        auto& testCase = pair.second;
-        try
+        for (auto& testCase : filenameToTestCaseList.second)
         {
-            do
+            try
             {
-                testCase.function(&testCase);
-
-                if (CATCH_INTERNAL(idx) == 0 && testCase.sections > 0) 
+                do
                 {
-                    --testCase.sections;
-                }
+                    testCase.function(&testCase);
 
-                ++CATCH_INTERNAL(idx);
+                    if (CATCH_INTERNAL(idx) == 0 && testCase.sections > 0) 
+                    {
+                        --testCase.sections;
+                    }
 
-            } while (testCase.sections--);
+                    ++CATCH_INTERNAL(idx);
+
+                } while (testCase.sections--);
+            }
+            catch (Assertion& a)
+            {
+                std::cout << "In test case: " << testCase.name << "\n" <<
+                    "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << "\n";
+                break;
+            }
+            ++testCasesPassed;
         }
-        catch (Assertion& a)
-        {
-            std::cout << "In test case: " << testCase.name << "\n" <<
-                            "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << "\n";
-            break;
-        }
-        ++testCasesPassed;
     }
 
     printf("%zd of %zd test cases passed.\n", testCasesPassed,
-            TestCase::allTestCases.size());
+            TestCase::count);
 
     return 0;
 }
