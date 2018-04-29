@@ -39,6 +39,7 @@ struct TestCase
 
 struct Assertion
 {
+    static size_t count;
     size_t line;
     const char *expression;
     const char *file;
@@ -53,6 +54,8 @@ extern size_t CATCH_INTERNAL(idx);
 size_t CATCH_INTERNAL(idx) = 0;
 
 std::unordered_map<std::string, TestCase> TestCase::allTestCases;
+size_t Assertion::count = 0;
+
 void Assertion::Assert(const char *exp, const char *fileName, size_t lineNumber, bool assertion)
 {
     if (!assertion)
@@ -67,6 +70,8 @@ TestCase::TestCase(const char *name, void (*function)(TestCase*)) : name(name), 
 
 int main()
 {
+    size_t testCasesPassed = 0;
+
     for (auto& pair : TestCase::allTestCases)
     {    
         CATCH_INTERNAL(idx) = 0;
@@ -93,7 +98,11 @@ int main()
                             "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << "\n";
             break;
         }
+        ++testCasesPassed;
     }
+
+    printf("%zd of %zd test cases passed.\n", testCasesPassed,
+            TestCase::allTestCases.size());
 
     return 0;
 }
