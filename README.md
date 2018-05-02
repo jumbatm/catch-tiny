@@ -22,12 +22,12 @@ to make assertions of your code. If these fail, you'll see output like:
 In test case: "Internal pointer is set to null after class is destructed."
 	Assertion failed: REQUIRE(ptr == nullptr) at sections.cpp:27
 ```
-In your test binary, just like with Catch2, make sure you define `CATCH_CONFIG_MAIN` before including `catch.hpp`, like:
+Just like with Catch2, make sure you define `CATCH_CONFIG_MAIN` before including `catch.hpp` in one file, like:
 ```cpp
 #define CATCH_CONFIG_MAIN // Define this in ONE FILE ONLY.
 #include "catch.hpp"
 ```
-
+Catch Tiny will provide a main function which runs all the tests compiled with it.
 
 In its most basic form, a test might look something like this:
 
@@ -64,6 +64,7 @@ TEST_CASE("And struct behaves like logical AND")
 }
 
 ```
+<<<<<<< HEAD
 Compiling and running this, we get:
 ```
 1 of 1 test cases passed.

@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <string>
+#include <stdexcept>
 
 // Preprocessor utilities.
 #define PP_CONCAT_(x, y) x ## y
@@ -112,18 +113,31 @@ int main()
             }
             catch (Assertion& a)
             {
-                std::cout << "In test case: " << testCase.name << "\n" <<
+                std::cout << "In test case: \"" << testCase.name << "\"\n" <<
                     "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << "\n";
                 break;
             }
+            catch (std::exception& e)
+            {
+                std::cout << "In test case: \"" << testCase.name << "\"\n"
+                    << "\tAn exception was thrown. what(): " << e.what() << "\n";
+                break;
+            }
+            catch (...)
+            {
+                std::cout << "In test case: \"" << testCase.name << "\"\n" 
+                    << "\tAn unrecognised object was thrown. Aborting." << "\n";
+                break;
+            }
             ++testCasesPassed;
+
         }
+
+        printf("%zd of %zd test cases passed.\n", testCasesPassed,
+                TestCase::count);
+
+        return 0;
     }
-
-    printf("%zd of %zd test cases passed.\n", testCasesPassed,
-            TestCase::count);
-
-    return 0;
 }
 #endif
 #endif
