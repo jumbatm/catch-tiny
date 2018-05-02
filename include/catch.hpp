@@ -26,8 +26,8 @@
 
 // Public interface.
 #define TEST_CASE(x) CATCH_TINY_GENERATE( PP_CONCAT(f, __LINE__), PP_CONCAT(t, __LINE__), x)
-#define SECTION(...) if (CATCH_INTERNAL(idx) == 0) this_->sections++; \
-                                              if (CATCH_INTERNAL(idx) == __COUNTER__)
+#define SECTION(x) if (CATCH_INTERNAL(idx) == 0) this_->sections++; \
+                                              if (CATCH_INTERNAL(idx) == (this_->section = x, __COUNTER__))
 #define REQUIRE(...) Assertion::Assert(#__VA_ARGS__, __FILE__, __LINE__, __VA_ARGS__)
 
 struct TestCase
@@ -36,7 +36,9 @@ struct TestCase
     static std::unordered_set<std::string> testCaseNames;
     static size_t count;
 
-    const char *name;
+    const char *const name;
+    const char *section;
+
     void (*function)(TestCase*);
     size_t sections = 0;
 
@@ -114,19 +116,22 @@ int main()
             catch (Assertion& a)
             {
                 std::cout << "In test case: \"" << testCase.name << "\"\n" <<
-                    "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << "\n";
+                    "... In section: \"" << testCase.section << "\"\n" <<
+                        "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << "\n";
                 break;
             }
             catch (std::exception& e)
             {
                 std::cout << "In test case: \"" << testCase.name << "\"\n"
-                    << "\tAn exception was thrown. what(): " << e.what() << "\n";
+                    "... In section: \"" << testCase.section << "\"\n" <<
+                        "\tAn exception was thrown. what(): " << e.what() << "\n";
                 break;
             }
             catch (...)
             {
                 std::cout << "In test case: \"" << testCase.name << "\"\n" 
-                    << "\tAn unrecognised object was thrown. Aborting." << "\n";
+                    "... In section: \"" << testCase.section << "\"\n" <<
+                        "\tAn unrecognised object was thrown. Aborting." << "\n";
                 break;
             }
             ++testCasesPassed;
