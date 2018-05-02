@@ -67,4 +67,4 @@ TEST_CASE("And struct behaves like logical AND")
 
 # Also see:
 - [Catch2](https://github.com/catchorg/Catch2), the original testing framework this is based off. Has a ton of features.
-- [Catch Mini](https://github.com/catchorg/Catch2), another minimal subset of Catch2.
+- [Catch Mini](https://github.com/GValiente/catch-mini), another minimal subset of Catch2.
