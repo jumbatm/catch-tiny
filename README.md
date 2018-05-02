@@ -64,7 +64,6 @@ TEST_CASE("And struct behaves like logical AND")
 }
 
 ```
-<<<<<<< HEAD
 Compiling and running this, we get:
 ```
 1 of 1 test cases passed.
