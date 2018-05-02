@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <string>
+#include <stdexcept>
 
 #define PP_CONCAT_(x, y) x ## y
 #define PP_CONCAT(x, y) PP_CONCAT_(x, y) // Indirection, as PP won't recursively stringise.
@@ -60,10 +61,23 @@ int main()
         }
         catch (Assertion& a)
         {
-            std::cout << "In test case: " << i.second.name << "\n" <<
+            std::cout << "In test case: \"" << i.second.name << "\"\n" <<
                             "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << "\n";
             break;
         }
+        catch (std::exception& e)
+        {
+            std::cout << "In test case: \"" << i.second.name << "\"\n"
+                << "\tAn exception was thrown. what(): " << e.what() << "\n";
+            break;
+        }
+        catch (...)
+        {
+            std::cout << "In test case: \"" << i.second.name << "\"\n" 
+                << "\tAn unrecognised object was thrown. Aborting." << "\n";
+            break;
+        }
+
     }
 
     return 0;
