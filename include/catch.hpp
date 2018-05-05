@@ -53,6 +53,8 @@ TestCase::TestCase(const char *name, void (*function)()) : name(name), function(
 
 int main()
 {
+    bool success = true;
+
     for (auto& i : TestCase::allTestCases)
     {
         try
@@ -63,24 +65,27 @@ int main()
         {
             std::cout << "In test case: \"" << i.second.name << "\"\n" <<
                             "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << "\n";
+            success = false;
             break;
         }
         catch (std::exception& e)
         {
             std::cout << "In test case: \"" << i.second.name << "\"\n"
                 << "\tAn exception was thrown. what(): " << e.what() << "\n";
+            success = false;
             break;
         }
         catch (...)
         {
             std::cout << "In test case: \"" << i.second.name << "\"\n" 
                 << "\tAn unrecognised object was thrown. Aborting." << "\n";
+            success = false;
             break;
         }
 
     }
 
-    return 0;
+    return (success ? 0 : -1);
 }
 #endif
 #endif
