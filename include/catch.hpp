@@ -119,6 +119,7 @@ int main()
                 std::cout << "In test case: \"" << testCase.name << "\"\n" <<
                     "... In section: \"" << testCase.section << "\"\n" <<
                         "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << "\n";
+                success = false;
                 break;
             }
             catch (std::exception& e)
@@ -126,6 +127,7 @@ int main()
                 std::cout << "In test case: \"" << testCase.name << "\"\n"
                     "... In section: \"" << testCase.section << "\"\n" <<
                         "\tAn exception was thrown. what(): " << e.what() << "\n";
+                success = false;
                 break;
             }
             catch (...)
@@ -133,6 +135,7 @@ int main()
                 std::cout << "In test case: \"" << testCase.name << "\"\n" 
                     "... In section: \"" << testCase.section << "\"\n" <<
                         "\tAn unrecognised object was thrown. Aborting." << "\n";
+                success = false;
                 break;
             }
             ++testCasesPassed;
@@ -142,6 +145,7 @@ int main()
                 TestCase::count);
 
     return (success ? 0 : -1);
+    }
 }
 #endif
 #endif
