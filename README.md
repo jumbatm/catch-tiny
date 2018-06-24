@@ -64,6 +64,50 @@ TEST_CASE("And struct behaves like logical AND")
 }
 
 ```
+Compiling and running this, we get:
+```
+1 of 1 test cases passed.
+```
+Fantastic.
+
+### Sections (still in progress)
+If you have a number of individual tests you want to perform in a specific section, you can use 
+```cpp
+// ...
+SECTION(const char *name)
+{
+    // ...
+}
+// ...
+```
+within a `TEST_CASE`. Anything outside a `SECTION` in the test case gets executed before each section, so this is useful if your tests all have something they need initialised in the same way, like in the below example:
+```cpp
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
+TEST_CASE("Sections execute preceding lines of code.")
+{
+    int num = 0;
+
+    SECTION("Increment once")
+    {
+        ++num;
+    }
+    SECTION("Increment again")
+    {
+        num += 2;
+    }
+    SECTION("Increment yet again")
+    {
+        num += 3;
+        REQUIRE(num == 3);
+    }
+}
+
+```
+This also outputs
+```
+1 of 1 test cases passed.
+```
 
 # Also see:
 - [Catch2](https://github.com/catchorg/Catch2), the original testing framework this is based off. Has a ton of features.
