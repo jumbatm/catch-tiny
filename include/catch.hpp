@@ -142,6 +142,7 @@ int main()
                 TestCase::count);
 
     return (success ? 0 : -1);
+    }
 }
 #endif
 #endif
