@@ -72,7 +72,7 @@ Fantastic.
 
 ### Sections (still in progress)
 #### Issues:
-[ ] Test cases across files cannot begin on the same line
+- [ ] Test cases across files cannot begin on the same line
 
 If you have a number of individual tests you want to perform in a specific section, you can use 
 ```cpp
