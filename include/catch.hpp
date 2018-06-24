@@ -140,12 +140,11 @@ int main()
             }
             ++testCasesPassed;
         }
-
-        printf("%zd of %zd test cases passed.\n", testCasesPassed,
-                TestCase::count);
-
-    return (success ? 0 : -1);
     }
+
+    printf("%zd of %zd test cases passed.\n", testCasesPassed,
+                TestCase::count);
+    return (success ? 0 : -1);
 }
 #endif
 #endif
