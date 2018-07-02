@@ -16,7 +16,7 @@
 #define CATCH_INTERNAL(x) catch_tiny_internal__ ## x
 
 // Force execution outside of main.
-#define CATCH_EXEC(x) static bool PP_CONCAT( b, __LINE__){(x)}
+#define CATCH_EXEC(x) static bool PP_CONCAT( __CATCH_TINY_EXEC__, __LINE__){(x)}
 
 // Create a new global test case object. Called by TEST_CASE.
 #define CATCH_TINY_GENERATE(FUNC_NAME, TEST_NAME, CASE_NAME) \
@@ -25,9 +25,9 @@
     static void FUNC_NAME(TestCase *this_)
 
 // Public interface.
-#define TEST_CASE(x) CATCH_TINY_GENERATE( PP_CONCAT(f, __LINE__), PP_CONCAT(t, __LINE__), x)
+#define TEST_CASE(x) CATCH_TINY_GENERATE( PP_CONCAT(__CATCH_TINY_TEST_CASE__, __LINE__), PP_CONCAT(t, __LINE__), x)
 #define SECTION(x) if (CATCH_INTERNAL(idx) == 0) this_->sections++; \
-                                              if (CATCH_INTERNAL(idx) == (this_->section = x, __COUNTER__))
+                   if (CATCH_INTERNAL(idx) == (this_->section = x, __COUNTER__))
 #define REQUIRE(...) Assertion::Assert(#__VA_ARGS__, __FILE__, __LINE__, __VA_ARGS__)
 
 struct TestCase
