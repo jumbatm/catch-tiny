@@ -18,11 +18,17 @@
 // Force execution outside of main.
 #define CATCH_EXEC(x) static bool PP_CONCAT( __CATCH_TINY_EXEC__, __LINE__){(x)}
 
+#if defined(__GNUC__) || defined(__llvm__)
+    #define CATCH_POTENTIALLY_UNUSED __attribute__((unused))
+#else
+    #define CATCH_POTENTIALLY_UNUSED
+#endif
+
 // Create a new global test case object. Called by TEST_CASE.
 #define CATCH_TINY_GENERATE(FUNC_NAME, TEST_NAME, CASE_NAME) \
     static void FUNC_NAME(TestCase*); \
     TestCase TEST_NAME(__FILE__, CASE_NAME, FUNC_NAME); \
-    static void FUNC_NAME(TestCase *this_)
+    static void FUNC_NAME(CATCH_POTENTIALLY_UNUSED TestCase *this_)
 
 // Public interface.
 #define TEST_CASE(x) CATCH_TINY_GENERATE( PP_CONCAT(__CATCH_TINY_TEST_CASE__, __LINE__), PP_CONCAT(t, __LINE__), x)
