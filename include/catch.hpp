@@ -18,10 +18,18 @@
 // Force execution outside of main.
 #define CATCH_EXEC(x) static bool PP_CONCAT( __CATCH_TINY_EXEC__, __LINE__){(x)}
 
-#if defined(__GNUC__) || defined(__llvm__)
-    #define CATCH_POTENTIALLY_UNUSED __attribute__((unused))
+#if __cplusplus < 201703L 
+// Pre-C++17, we use implementation-defined attributes.
+    #if defined(__GNUC__) || defined(__llvm__)
+        // gcc or clang.
+        #define CATCH_POTENTIALLY_UNUSED __attribute__((unused))
+    #else
+        // Otherwise, don't bother. Optimally this 
+        #define CATCH_POTENTIALLY_UNUSED
+    #endif 
 #else
-    #define CATCH_POTENTIALLY_UNUSED
+// Post C++17, maybe_unused is standardised.
+    #define CATCH_POTENTIALLY_UNUSED [[maybe_unused]]
 #endif
 
 // Create a new global test case object. Called by TEST_CASE.
