@@ -51,7 +51,7 @@ struct TestCase
     static size_t count;
 
     const char *const name;
-    const char *section;
+    const char *section = "<None>";
 
     void (*function)(TestCase*);
     size_t sections = 0;
