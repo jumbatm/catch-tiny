@@ -1,5 +1,5 @@
-#ifndef __CATCH_TINY_INCLUDED_H__
-#define __CATCH_TINY_INCLUDED_H__
+#ifndef _cATCH_TINY_INCLUDED_H__
+#define _cATCH_TINY_INCLUDED_H__
 
 #include <iostream>
 #include <list>
@@ -16,7 +16,7 @@
 #define CATCH_INTERNAL(x) catch_tiny_internal__ ## x
 
 // Force execution outside of main.
-#define CATCH_EXEC(x) static bool PP_CONCAT( __CATCH_TINY_EXEC__, __LINE__){(x)}
+#define CATCH_EXEC(x) static bool PP_CONCAT( _cATCH_TINY_EXEC__, __LINE__){(x)}
 
 #if __cplusplus < 201703L 
 // Pre-C++17, we use implementation-defined attributes.
@@ -34,12 +34,12 @@
 
 // Create a new global test case object. Called by TEST_CASE.
 #define CATCH_TINY_GENERATE(FUNC_NAME, TEST_NAME, CASE_NAME) \
-    static void FUNC_NAME(TestCase*); \
-    TestCase TEST_NAME(__FILE__, CASE_NAME, FUNC_NAME); \
+    static void FUNC_NAME(TestCase*);\
+    static TestCase TEST_NAME(__FILE__, CASE_NAME, FUNC_NAME); \
     static void FUNC_NAME(CATCH_POTENTIALLY_UNUSED TestCase *this_)
 
 // Public interface.
-#define TEST_CASE(x) CATCH_TINY_GENERATE( PP_CONCAT(__CATCH_TINY_TEST_CASE__, __LINE__), PP_CONCAT(t, __LINE__), x)
+#define TEST_CASE(x) CATCH_TINY_GENERATE( PP_CONCAT(_cATCH_TINY_TEST_CASE__, __LINE__), PP_CONCAT(_cATCH_TINY_TEST_CASE___, __LINE__), x)
 #define SECTION(x) if (CATCH_INTERNAL(idx) == 0) this_->sections++; \
                    if (CATCH_INTERNAL(idx) == (this_->section = x, __COUNTER__))
 #define REQUIRE(...) Assertion::Assert(#__VA_ARGS__, __FILE__, __LINE__, __VA_ARGS__)
@@ -69,12 +69,12 @@ struct Assertion
 };
 
 extern size_t CATCH_INTERNAL(idx);
-extern bool CATCH_INTERNAL(duplicateFlag);
+extern const char* CATCH_INTERNAL(duplicateTestCaseName);
 
 #ifdef CATCH_CONFIG_MAIN
 
 size_t CATCH_INTERNAL(idx) = 0;
-bool CATCH_INTERNAL(duplicateFlag) = false;
+const char* CATCH_INTERNAL(duplicateTestCaseName) = nullptr;
 
 std::unordered_set<std::string> TestCase::testCaseNames;
 std::unordered_map<std::string, std::list<TestCase> > TestCase::allTestCases;
@@ -93,16 +93,16 @@ TestCase::TestCase(const char *filename, const char *name, void (*function)(Test
     allTestCases[std::string(filename)].push_back(*this);
     if (!testCaseNames.insert(std::string(name)).second)
     {
-        CATCH_INTERNAL(duplicateFlag) = true;
+        CATCH_INTERNAL(duplicateTestCaseName) = name;
     }
 }
 
 int main()
 {
     bool success = true;
-    if (CATCH_INTERNAL(duplicateFlag))
+    if (CATCH_INTERNAL(duplicateTestCaseName))
     {
-        printf("Duplicate test case flags.\n");
+        printf("Duplicate test case name: \"%s\".\n", CATCH_INTERNAL(duplicateTestCaseName));
         return -1;
     }
     size_t testCasesPassed = 0;
