@@ -1,5 +1,5 @@
-#ifndef _cATCH_TINY_INCLUDED_H__
-#define _cATCH_TINY_INCLUDED_H__
+#ifndef _cATCH_TINY_INCLUDED_H_
+#define _cATCH_TINY_INCLUDED_H_
 
 #include <iostream>
 #include <list>
@@ -13,10 +13,10 @@
 #define PP_CONCAT(x, y) PP_CONCAT_(x, y) // Indirection, as PP won't recursively stringise.
 
 // Generate a name for internal variables to reduce likelihood of collisions.
-#define CATCH_INTERNAL(x) catch_tiny_internal__ ## x
+#define CATCH_INTERNAL(x) catch_tiny_internal_ ## x
 
 // Force execution outside of main.
-#define CATCH_EXEC(x) static bool PP_CONCAT( _cATCH_TINY_EXEC__, __LINE__){(x)}
+#define CATCH_EXEC(x) static bool PP_CONCAT( _cATCH_TINY_EXEC_, __LINE__){(x)}
 
 #if __cplusplus < 201703L 
 // Pre-C++17, we use implementation-defined attributes.
@@ -39,7 +39,7 @@
     static void FUNC_NAME(CATCH_POTENTIALLY_UNUSED TestCase *this_)
 
 // Public interface.
-#define TEST_CASE(x) CATCH_TINY_GENERATE( PP_CONCAT(_cATCH_TINY_TEST_CASE__, __LINE__), PP_CONCAT(_cATCH_TINY_TEST_CASE___, __LINE__), x)
+#define TEST_CASE(x) CATCH_TINY_GENERATE( PP_CONCAT(_cATCH_TINY_TEST_CASE_, __LINE__), PP_CONCAT(_cATCH_TINY_TEST_CASE__, __LINE__), x)
 #define SECTION(x) if (CATCH_INTERNAL(idx) == 0) this_->sections++; \
                    if (CATCH_INTERNAL(idx) == (this_->section = x, __COUNTER__))
 #define REQUIRE(...) Assertion::Assert(#__VA_ARGS__, __FILE__, __LINE__, __VA_ARGS__)
