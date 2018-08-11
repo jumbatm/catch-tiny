@@ -3,60 +3,73 @@
 
 #include <iostream>
 #include <list>
-#include <unordered_set>
-#include <unordered_map>
-#include <string>
 #include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 // Preprocessor utilities.
-#define PP_CONCAT_(x, y) x ## y
-#define PP_CONCAT(x, y) PP_CONCAT_(x, y) // Indirection, as PP won't recursively stringise.
+#define PP_CONCAT_(x, y) x##y
+#define PP_CONCAT(x, y) \
+    PP_CONCAT_(x, y)  // Indirection, as PP won't recursively stringise.
 
 // Generate a name for internal variables to reduce likelihood of collisions.
-#define CATCH_INTERNAL(x) catch_tiny_internal_ ## x
+#define CATCH_INTERNAL(x) catch_tiny_internal_##x
 
 // Force execution outside of main.
-#define CATCH_EXEC(x) static bool PP_CONCAT( _cATCH_TINY_EXEC_, __LINE__){(x)}
+#define CATCH_EXEC(x)                                  \
+    static bool PP_CONCAT(_cATCH_TINY_EXEC_, __LINE__) \
+    {                                                  \
+        (x)                                            \
+    }
 
-#if __cplusplus < 201703L 
+#if __cplusplus < 201703L
 // Pre-C++17, we use implementation-defined attributes.
-    #if defined(__GNUC__) || defined(__llvm__)
-        // gcc or clang.
-        #define CATCH_POTENTIALLY_UNUSED __attribute__((unused))
-    #else
-        // Otherwise, don't bother. Optimally this 
-        #define CATCH_POTENTIALLY_UNUSED
-    #endif 
+#    if defined(__GNUC__) || defined(__llvm__)
+// gcc or clang.
+#        define CATCH_POTENTIALLY_UNUSED __attribute__((unused))
+#    else
+// Otherwise, don't bother. Optimally this
+#        define CATCH_POTENTIALLY_UNUSED
+#    endif
 #else
 // Post C++17, maybe_unused is standardised.
-    #define CATCH_POTENTIALLY_UNUSED [[maybe_unused]]
+#    define CATCH_POTENTIALLY_UNUSED [[maybe_unused]]
 #endif
 
 // Create a new global test case object. Called by TEST_CASE.
-#define CATCH_TINY_GENERATE(FUNC_NAME, TEST_NAME, CASE_NAME) \
-    static void FUNC_NAME(TestCase*);\
+#define CATCH_TINY_GENERATE(FUNC_NAME, TEST_NAME, CASE_NAME)   \
+    static void FUNC_NAME(TestCase *);                         \
     static TestCase TEST_NAME(__FILE__, CASE_NAME, FUNC_NAME); \
     static void FUNC_NAME(CATCH_POTENTIALLY_UNUSED TestCase *this_)
 
 // Public interface.
-#define TEST_CASE(x) CATCH_TINY_GENERATE( PP_CONCAT(_cATCH_TINY_TEST_CASE_, __LINE__), PP_CONCAT(_cATCH_TINY_TEST_CASE__, __LINE__), x)
-#define SECTION(x) if (CATCH_INTERNAL(idx) == 0) this_->sections++; \
-                   if (CATCH_INTERNAL(idx) == (this_->section = x, __COUNTER__))
-#define REQUIRE(...) Assertion::Assert(#__VA_ARGS__, __FILE__, __LINE__, __VA_ARGS__)
+#define TEST_CASE(x)                                                  \
+    CATCH_TINY_GENERATE(PP_CONCAT(_cATCH_TINY_TEST_CASE_, __LINE__),  \
+                        PP_CONCAT(_cATCH_TINY_TEST_CASE__, __LINE__), \
+                        x)
+#define SECTION(x)                \
+    if (CATCH_INTERNAL(idx) == 0) \
+        this_->sections++;        \
+    if (CATCH_INTERNAL(idx) == (this_->section = x, __COUNTER__))
+#define REQUIRE(...) \
+    Assertion::Assert(#__VA_ARGS__, __FILE__, __LINE__, __VA_ARGS__)
 
 struct TestCase
 {
-    static std::unordered_map<std::string, std::list<TestCase> > allTestCases;
+    static std::unordered_map<std::string, std::list<TestCase>> allTestCases;
     static std::unordered_set<std::string> testCaseNames;
     static size_t count;
 
     const char *const name;
     const char *section = "<None>";
 
-    void (*function)(TestCase*);
+    void (*function)(TestCase *);
     size_t sections = 0;
 
-    TestCase(const char *filename, const char *name, void (*function)(TestCase*));
+    TestCase(const char *filename,
+             const char *name,
+             void (*function)(TestCase *));
 };
 
 struct Assertion
@@ -65,29 +78,38 @@ struct Assertion
     const char *expression;
     const char *file;
 
-    static void Assert(const char *exp, const char *fileName, size_t lineNumber, bool assertion);
+    static void Assert(const char *exp,
+                       const char *fileName,
+                       size_t lineNumber,
+                       bool assertion);
 };
 
 extern size_t CATCH_INTERNAL(idx);
-extern const char* CATCH_INTERNAL(duplicateTestCaseName);
+extern const char *CATCH_INTERNAL(duplicateTestCaseName);
 
 #ifdef CATCH_CONFIG_MAIN
 
-size_t CATCH_INTERNAL(idx) = 0;
-const char* CATCH_INTERNAL(duplicateTestCaseName) = nullptr;
+size_t CATCH_INTERNAL(idx)                        = 0;
+const char *CATCH_INTERNAL(duplicateTestCaseName) = nullptr;
 
 std::unordered_set<std::string> TestCase::testCaseNames;
-std::unordered_map<std::string, std::list<TestCase> > TestCase::allTestCases;
+std::unordered_map<std::string, std::list<TestCase>> TestCase::allTestCases;
 size_t TestCase::count = 0;
 
-void Assertion::Assert(const char *exp, const char *fileName, size_t lineNumber, bool assertion)
+void Assertion::Assert(const char *exp,
+                       const char *fileName,
+                       size_t lineNumber,
+                       bool assertion)
 {
     if (!assertion)
     {
-        throw Assertion{lineNumber, exp, fileName};
+        throw Assertion{ lineNumber, exp, fileName };
     }
 }
-TestCase::TestCase(const char *filename, const char *name, void (*function)(TestCase*)) : name(name), function(function)
+TestCase::TestCase(const char *filename,
+                   const char *name,
+                   void (*function)(TestCase *))
+  : name(name), function(function)
 {
     TestCase::count++;
     allTestCases[std::string(filename)].push_back(*this);
@@ -102,16 +124,17 @@ int main()
     bool success = true;
     if (CATCH_INTERNAL(duplicateTestCaseName))
     {
-        printf("Duplicate test case name: \"%s\".\n", CATCH_INTERNAL(duplicateTestCaseName));
+        printf("Duplicate test case name: \"%s\".\n",
+               CATCH_INTERNAL(duplicateTestCaseName));
         return -1;
     }
     size_t testCasesPassed = 0;
 
-    for (auto& filenameToTestCaseList : TestCase::allTestCases)
-    {    
+    for (auto &filenameToTestCaseList : TestCase::allTestCases)
+    {
         CATCH_INTERNAL(idx) = 0;
 
-        for (auto& testCase : filenameToTestCaseList.second)
+        for (auto &testCase : filenameToTestCaseList.second)
         {
             try
             {
@@ -119,7 +142,7 @@ int main()
                 {
                     testCase.function(&testCase);
 
-                    if (CATCH_INTERNAL(idx) == 0 && testCase.sections > 0) 
+                    if (CATCH_INTERNAL(idx) == 0 && testCase.sections > 0)
                     {
                         --testCase.sections;
                     }
@@ -128,27 +151,35 @@ int main()
 
                 } while (testCase.sections--);
             }
-            catch (Assertion& a)
+            catch (Assertion &a)
             {
-                std::cout << "In test case: \"" << testCase.name << "\"\n" <<
-                    "... In section: \"" << testCase.section << "\"\n" <<
-                        "\tAssertion failed: " <<  "REQUIRE(" << a.expression << ") at " << a.file << ":" << a.line << "\n";
+                std::cout << "In test case: \"" << testCase.name << "\"\n"
+                          << "... In section: \"" << testCase.section << "\"\n"
+                          << "\tAssertion failed: "
+                          << "REQUIRE(" << a.expression << ") at " << a.file
+                          << ":" << a.line << "\n";
                 success = false;
                 break;
             }
-            catch (std::exception& e)
+            catch (std::exception &e)
             {
-                std::cout << "In test case: \"" << testCase.name << "\"\n"
-                    "... In section: \"" << testCase.section << "\"\n" <<
-                        "\tAn exception was thrown. what(): " << e.what() << "\n";
+                std::cout << "In test case: \"" << testCase.name
+                          << "\"\n"
+                             "... In section: \""
+                          << testCase.section << "\"\n"
+                          << "\tAn exception was thrown. what(): " << e.what()
+                          << "\n";
                 success = false;
                 break;
             }
             catch (...)
             {
-                std::cout << "In test case: \"" << testCase.name << "\"\n" 
-                    "... In section: \"" << testCase.section << "\"\n" <<
-                        "\tAn unrecognised object was thrown. Aborting." << "\n";
+                std::cout << "In test case: \"" << testCase.name
+                          << "\"\n"
+                             "... In section: \""
+                          << testCase.section << "\"\n"
+                          << "\tAn unrecognised object was thrown. Aborting."
+                          << "\n";
                 success = false;
                 break;
             }
@@ -156,8 +187,7 @@ int main()
         }
     }
 
-    printf("%zd of %zd test cases passed.\n", testCasesPassed,
-                TestCase::count);
+    printf("%zd of %zd test cases passed.\n", testCasesPassed, TestCase::count);
     return (success ? 0 : -1);
 }
 #endif
