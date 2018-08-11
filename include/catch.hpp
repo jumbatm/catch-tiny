@@ -57,8 +57,6 @@
 
 struct TestCase
 {
-    static std::unordered_map<std::string, std::list<TestCase>> allTestCases;
-    static std::unordered_set<std::string> testCaseNames;
     static size_t count;
 
     const char *const name;
@@ -70,6 +68,10 @@ struct TestCase
     TestCase(const char *filename,
              const char *name,
              void (*function)(TestCase *));
+
+    static std::unordered_map<std::string, std::list<TestCase>>
+        &getAllTestCases();
+    static std::unordered_set<std::string> &getTestCaseNames();
 };
 
 struct Assertion
@@ -92,8 +94,19 @@ extern const char *CATCH_INTERNAL(duplicateTestCaseName);
 size_t CATCH_INTERNAL(idx)                        = 0;
 const char *CATCH_INTERNAL(duplicateTestCaseName) = nullptr;
 
-std::unordered_set<std::string> TestCase::testCaseNames;
-std::unordered_map<std::string, std::list<TestCase>> TestCase::allTestCases;
+std::unordered_map<std::string, std::list<TestCase>>
+    &TestCase::getAllTestCases()
+{
+    static std::unordered_map<std::string, std::list<TestCase>>
+        TestCase_allTestCases;
+    return TestCase_allTestCases;
+}
+std::unordered_set<std::string> &TestCase::getTestCaseNames()
+{
+    static std::unordered_set<std::string> TestCase_testCaseNames;
+    return TestCase_testCaseNames;
+}
+
 size_t TestCase::count = 0;
 
 void Assertion::Assert(const char *exp,
@@ -112,8 +125,8 @@ TestCase::TestCase(const char *filename,
   : name(name), function(function)
 {
     TestCase::count++;
-    allTestCases[std::string(filename)].push_back(*this);
-    if (!testCaseNames.insert(std::string(name)).second)
+    TestCase::getAllTestCases()[std::string(filename)].push_back(*this);
+    if (!TestCase::getTestCaseNames().insert(std::string(name)).second)
     {
         CATCH_INTERNAL(duplicateTestCaseName) = name;
     }
@@ -130,7 +143,7 @@ int main()
     }
     size_t testCasesPassed = 0;
 
-    for (auto &filenameToTestCaseList : TestCase::allTestCases)
+    for (auto &filenameToTestCaseList : TestCase::getAllTestCases())
     {
         CATCH_INTERNAL(idx) = 0;
 
