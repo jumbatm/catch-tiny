@@ -1,5 +1,6 @@
-#include "catch.hpp"
 #include <iostream>
+
+#include "catch.hpp"
 
 TEST_CASE("Sections execute preceding lines of code.")
 {
