@@ -28,3 +28,8 @@ TEST_CASE("Multiple test cases with sections in single file.")
         REQUIRE(false);
     }
 }
+
+TEST_CASE("This should fail too")
+{
+    REQUIRE(false && true);
+}
