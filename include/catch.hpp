@@ -8,6 +8,15 @@
 #include <unordered_map>
 #include <unordered_set>
 
+// Configuration.
+#define CATCH_EXIT_ON_FAIL
+
+#ifdef CATCH_EXIT_ON_FAIL
+#    define CATCH_FAILED_TEST_BREAK break
+#else
+#    define CATCH_FAILED_TEST_BREAK
+#endif
+
 // Preprocessor utilities.
 #define PP_CONCAT_(x, y) x##y
 #define PP_CONCAT(x, y) \
@@ -69,7 +78,7 @@ struct TestCase
              const char *name,
              void (*function)(TestCase *));
 
-    static std::unordered_map<std::string, std::list<TestCase>>
+    static std::unordered_map<std::string, std::list<TestCase *>>
         &getAllTestCases();
     static std::unordered_set<std::string> &getTestCaseNames();
 };
@@ -94,10 +103,10 @@ extern const char *CATCH_INTERNAL(duplicateTestCaseName);
 size_t CATCH_INTERNAL(idx)                        = 0;
 const char *CATCH_INTERNAL(duplicateTestCaseName) = nullptr;
 
-std::unordered_map<std::string, std::list<TestCase>>
+std::unordered_map<std::string, std::list<TestCase *>>
     &TestCase::getAllTestCases()
 {
-    static std::unordered_map<std::string, std::list<TestCase>>
+    static std::unordered_map<std::string, std::list<TestCase *>>
         TestCase_allTestCases;
     return TestCase_allTestCases;
 }
@@ -125,7 +134,7 @@ TestCase::TestCase(const char *filename,
   : name(name), function(function)
 {
     TestCase::count++;
-    TestCase::getAllTestCases()[std::string(filename)].push_back(*this);
+    TestCase::getAllTestCases()[std::string(filename)].push_back(this);
     if (!TestCase::getTestCaseNames().insert(std::string(name)).second)
     {
         CATCH_INTERNAL(duplicateTestCaseName) = name;
@@ -153,54 +162,58 @@ int main()
             {
                 do
                 {
-                    testCase.function(&testCase);
+                    testCase->function(testCase);
 
-                    if (CATCH_INTERNAL(idx) == 0 && testCase.sections > 0)
+                    if (CATCH_INTERNAL(idx) == 0 && testCase->sections > 0)
                     {
-                        --testCase.sections;
+                        --testCase->sections;
                     }
 
                     ++CATCH_INTERNAL(idx);
 
-                } while (testCase.sections--);
+                } while (testCase->sections--);
             }
             catch (Assertion &a)
             {
-                std::cout << "In test case: \"" << testCase.name << "\"\n"
-                          << "... In section: \"" << testCase.section << "\"\n"
+                std::cout << "In test case: \"" << testCase->name << "\"\n"
+                          << "... In section: \"" << testCase->section << "\"\n"
                           << "\tAssertion failed: "
                           << "REQUIRE(" << a.expression << ") at " << a.file
                           << ":" << a.line << "\n";
                 success = false;
-                break;
+                CATCH_FAILED_TEST_BREAK;
             }
             catch (std::exception &e)
             {
-                std::cout << "In test case: \"" << testCase.name
+                std::cout << "In test case: \"" << testCase->name
                           << "\"\n"
                              "... In section: \""
-                          << testCase.section << "\"\n"
+                          << testCase->section << "\"\n"
                           << "\tAn exception was thrown. what(): " << e.what()
                           << "\n";
                 success = false;
-                break;
+                CATCH_FAILED_TEST_BREAK;
             }
             catch (...)
             {
-                std::cout << "In test case: \"" << testCase.name
+                std::cout << "In test case: \"" << testCase->name
                           << "\"\n"
                              "... In section: \""
-                          << testCase.section << "\"\n"
+                          << testCase->section << "\"\n"
                           << "\tAn unrecognised object was thrown. Aborting."
                           << "\n";
                 success = false;
-                break;
+                CATCH_FAILED_TEST_BREAK;
             }
             ++testCasesPassed;
         }
     }
-
+#    ifdef CATCH_EXIT_ON_FAIL
+    if (success)
+        printf("All %zd tests passed.\n", TestCase::count);
+#    else
     printf("%zd of %zd test cases passed.\n", testCasesPassed, TestCase::count);
+#    endif
     return (success ? 0 : -1);
 }
 #endif
