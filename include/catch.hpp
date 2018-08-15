@@ -61,7 +61,7 @@
 #ifdef CATCH_EXIT_ON_FAIL
 #    define CATCH_FAILED_TEST_BREAK break
 #else
-#    define CATCH_FAILED_TEST_BREAK
+#    define CATCH_FAILED_TEST_BREAK continue
 #endif
 
 struct TestCase
