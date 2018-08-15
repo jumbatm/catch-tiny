@@ -46,7 +46,7 @@
 // Public interface.
 #define TEST_CASE(x)                                                  \
     CATCH_TINY_GENERATE(PP_CONCAT(_cATCH_TINY_TEST_CASE_, __LINE__),  \
-                        PP_CONCAT(_cATCH_TINY_TEST_CASE__, __LINE__), \
+                        PP_CONCAT(_cATCH_TINY_TEST_CASE_b, __LINE__), \
                         x)
 #define SECTION(x)                \
     if (CATCH_INTERNAL(idx) == 0) \
