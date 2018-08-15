@@ -9,13 +9,7 @@
 #include <unordered_set>
 
 // Configuration.
-#define CATCH_EXIT_ON_FAIL
-
-#ifdef CATCH_EXIT_ON_FAIL
-#    define CATCH_FAILED_TEST_BREAK break
-#else
-#    define CATCH_FAILED_TEST_BREAK
-#endif
+//#define CATCH_EXIT_ON_FAIL
 
 // Preprocessor utilities.
 #define PP_CONCAT_(x, y) x##y
@@ -63,6 +57,12 @@
     if (CATCH_INTERNAL(idx) == (this_->section = x, __COUNTER__))
 #define REQUIRE(...) \
     Assertion::Assert(#__VA_ARGS__, __FILE__, __LINE__, __VA_ARGS__)
+
+#ifdef CATCH_EXIT_ON_FAIL
+#    define CATCH_FAILED_TEST_BREAK break
+#else
+#    define CATCH_FAILED_TEST_BREAK
+#endif
 
 struct TestCase
 {
