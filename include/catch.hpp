@@ -190,7 +190,7 @@ int main()
                              "... In section: \""
                           << testCase->section << "\"\n"
                           << "\tAn exception was thrown. what(): " << e.what()
-                          << " at " << a.file << ":" << a.line << "\n";
+                          << "\n";
                 success = false;
                 CATCH_FAILED_TEST_BREAK;
             }
