@@ -175,7 +175,7 @@ int main()
             }
             catch (Assertion &a)
             {
-                std::cout << "In test case: \"" << testCase->name << "\"\n"
+                std::cerr << "In test case: \"" << testCase->name << "\"\n"
                           << "... In section: \"" << testCase->section << "\"\n"
                           << "\tAssertion failed: "
                           << "REQUIRE(" << a.expression << ") at " << a.file
@@ -185,18 +185,18 @@ int main()
             }
             catch (std::exception &e)
             {
-                std::cout << "In test case: \"" << testCase->name
+                std::cerr << "In test case: \"" << testCase->name
                           << "\"\n"
                              "... In section: \""
                           << testCase->section << "\"\n"
                           << "\tAn exception was thrown. what(): " << e.what()
-                          << "\n";
+                          << " at " << a.file << ":" << a.line << "\n";
                 success = false;
                 CATCH_FAILED_TEST_BREAK;
             }
             catch (...)
             {
-                std::cout << "In test case: \"" << testCase->name
+                std::cerr << "In test case: \"" << testCase->name
                           << "\"\n"
                              "... In section: \""
                           << testCase->section << "\"\n"
